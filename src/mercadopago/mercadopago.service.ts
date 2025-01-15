@@ -1,47 +1,66 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-
-// Step 1: Import the parts of the module you want to use
-import { MercadoPagoConfig, Payment } from 'mercadopago';
+import { MercadoPagoConfig, Preference } from 'mercadopago';
 
 @Injectable()
 export class MercadopagoService {
   constructor(private configService: ConfigService) {}
 
-  createMercadoPagoPayment() {
-    // Step 2: Initialize the client object
+  async createMercadoPagoPayment() {
+    const accessToken = this.configService.get<string>('ACCESS_TOKEN');
     const client = new MercadoPagoConfig({
-      accessToken: this.configService.get<string>('ACCESS_TOKEN'),
-      options: { timeout: 5000, idempotencyKey: 'abc' },
+      accessToken,
+      options: { timeout: 5000 },
     });
 
-    // Step 3: Initialize the API object
-    const payment = new Payment(client);
+    const preference = new Preference(client);
 
-    // Step 4: Create the request object
     const body = {
-      transaction_amount: 10000,
-      description: 'Memoria RAM 16GB',
-      payment_method_id: 'pix',
+      items: [
+        {
+          id: '1234',
+          title: 'Memoria RAM 16GB',
+          description: 'Memoria RAM 16GB DDR4',
+          quantity: 1,
+          unit_price: 100000,
+          currency_id: 'COP',
+        },
+      ],
       payer: {
         email: 'test@test.com',
+        name: 'Test',
+        surname: 'User',
+        identification: {
+          type: 'CC',
+          number: '12345678',
+        },
+      },
+      back_urls: {
+        success: 'http://localhost:3000/success',
+        failure: 'http://localhost:3000/failure',
+        pending: 'http://localhost:3000/pending',
+      },
+      auto_return: 'approved',
+      payment_methods: {
+        excluded_payment_methods: [],
+        excluded_payment_types: [],
+        installments: 1,
       },
     };
 
-    // Step 5: Create request options object - Optional
-    const requestOptions = {
-      idempotencyKey: 'abc',
-    };
-
-    // Step 6: Make the request
-    payment
-      .create({ body, requestOptions })
-      .then(console.log)
-      .catch(console.log);
-    return 'This action adds a new mercadopago';
+    try {
+      const result = await preference.create({ body });
+      return result;
+    } catch (error) {
+      console.error('Error creating preference:', error);
+      throw error;
+    }
   }
 
   getMercadoPago() {
-    return 'This action adds a new mercadopago';
+    return {
+      message: 'MercadoPago route works!',
+      publicKey: this.configService.get('PUBLIC_KEY'),
+    };
   }
 }
