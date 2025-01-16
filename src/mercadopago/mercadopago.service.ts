@@ -15,6 +15,13 @@ export class MercadopagoService {
 
     const preference = new Preference(client);
 
+    const userData = {
+      userId: 'user_123',
+      subdomain: 'restaurant-name',
+      planType: 'premium',
+      businessName: 'Mi Restaurante',
+    };
+
     const body = {
       items: [
         {
@@ -43,21 +50,37 @@ export class MercadopagoService {
         pending:
           'https://068b-186-27-244-118.ngrok-free.app/api/mercadopago/pending',
       },
-      // auto_return: 'approved',
+      auto_return: 'all',
+      binary_mode: false,
+      expires: true,
+      expiration_date_to: new Date(
+        Date.now() + 24 * 60 * 60 * 1000,
+      ).toISOString(),
       payment_methods: {
         excluded_payment_methods: [],
         excluded_payment_types: [],
         installments: 1,
+        default_payment_method_id: null,
+        default_installments: null,
       },
-      statement_descriptor: 'MENUDIGITAL',
       notification_url:
         'https://068b-186-27-244-118.ngrok-free.app/api/mercadopago/webhook',
-      external_reference: 'userid-3',
+      statement_descriptor: 'MENUDIGITAL',
+      external_reference: `userid-3_${userData.subdomain}`,
+      metadata: {
+        user_id: userData.userId,
+        subdomain: userData.subdomain,
+        plan_type: userData.planType,
+        business_name: userData.businessName,
+      },
     };
 
     try {
       const result = await preference.create({ body });
-      return result;
+      return {
+        ...result,
+        client_id: this.configService.get('PUBLIC_KEY'),
+      };
     } catch (error) {
       console.error('Error creating preference:', error);
       throw error;
@@ -67,7 +90,7 @@ export class MercadopagoService {
   getMercadoPago() {
     return {
       message: 'MercadoPago route works!',
-      publicKey: this.configService.get('ACCESS_TOKEN'),
+      publicKey: this.configService.get('PUBLIC_KEY'),
     };
   }
 }
