@@ -20,6 +20,11 @@ export class MercadopagoService {
       subdomain: 'restaurant-name',
       planType: 'premium',
       businessName: 'Mi Restaurante',
+      customData: {
+        planId: 'premium_123',
+        startDate: new Date().toISOString(),
+        duration: '30 days',
+      },
     };
 
     const body = {
@@ -43,12 +48,10 @@ export class MercadopagoService {
         },
       },
       back_urls: {
-        success:
-          'https://068b-186-27-244-118.ngrok-free.app/api/mercadopago/success',
+        success: `https://068b-186-27-244-118.ngrok-free.app/api/mercadopago/success?userId=${userData.userId}&plan=${userData.planType}&business=${userData.businessName}`,
         failure:
           'https://068b-186-27-244-118.ngrok-free.app/api/mercadopago/failure',
-        pending:
-          'https://068b-186-27-244-118.ngrok-free.app/api/mercadopago/pending',
+        pending: `https://068b-186-27-244-118.ngrok-free.app/api/mercadopago/pending?userId=${userData.userId}&plan=${userData.planType}&business=${userData.businessName}`,
       },
       auto_return: 'all',
       binary_mode: false,
@@ -72,6 +75,7 @@ export class MercadopagoService {
         subdomain: userData.subdomain,
         plan_type: userData.planType,
         business_name: userData.businessName,
+        custom_data: userData.customData,
       },
     };
 

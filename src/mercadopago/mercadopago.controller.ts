@@ -14,10 +14,24 @@ export class MercadopagoController {
   getPending(@Query() query: any) {
     console.log('==== PENDING PAYMENT ====');
     console.log('Query params:', query);
-    // Aquí puedes manejar el estado pendiente
+
+    // Extraer datos personalizados
+    const customData = {
+      userId: query.userId,
+      plan: query.plan,
+      business: query.business,
+      // Datos de MercadoPago
+      collection_id: query.collection_id,
+      collection_status: query.collection_status,
+      payment_id: query.payment_id,
+      status: query.status,
+      external_reference: query.external_reference,
+      payment_type: query.payment_type,
+    };
+
     return {
       status: 'pending',
-      data: query,
+      data: customData,
     };
   }
 
@@ -25,10 +39,24 @@ export class MercadopagoController {
   getSuccess(@Query() query: any) {
     console.log('==== SUCCESS PAYMENT ====');
     console.log('Query params:', query);
-    // Aquí puedes manejar el pago exitoso
+
+    // Extraer datos personalizados
+    const customData = {
+      userId: query.userId,
+      plan: query.plan,
+      business: query.business,
+      // Datos de MercadoPago
+      collection_id: query.collection_id,
+      collection_status: query.collection_status,
+      payment_id: query.payment_id,
+      status: query.status,
+      external_reference: query.external_reference,
+      payment_type: query.payment_type,
+    };
+
     return {
       status: 'success',
-      data: query,
+      data: customData,
     };
   }
 
