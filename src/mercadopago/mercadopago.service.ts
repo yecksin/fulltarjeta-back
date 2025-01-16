@@ -19,33 +19,40 @@ export class MercadopagoService {
       items: [
         {
           id: '1234',
-          title: 'Memoria RAM 16GB',
-          description: 'Memoria RAM 16GB DDR4',
+          title: 'Suscripción 1 mes - menú digital',
+          description: 'Acceso a menú digital durante el periodo de 30 días',
           quantity: 1,
-          unit_price: 100000,
+          unit_price: 15000,
           currency_id: 'COP',
         },
       ],
       payer: {
-        email: 'test@test.com',
-        name: 'Test',
-        surname: 'User',
+        email: 'yecksin2@gmail.com',
+        name: 'Yecksin',
+        surname: 'Maurucio',
         identification: {
           type: 'CC',
           number: '12345678',
         },
       },
       back_urls: {
-        success: 'http://localhost:3000/success',
-        failure: 'http://localhost:3000/failure',
-        pending: 'http://localhost:3000/pending',
+        success:
+          'https://068b-186-27-244-118.ngrok-free.app/api/mercadopago/success',
+        failure:
+          'https://068b-186-27-244-118.ngrok-free.app/api/mercadopago/failure',
+        pending:
+          'https://068b-186-27-244-118.ngrok-free.app/api/mercadopago/pending',
       },
-      auto_return: 'approved',
+      // auto_return: 'approved',
       payment_methods: {
         excluded_payment_methods: [],
         excluded_payment_types: [],
         installments: 1,
       },
+      statement_descriptor: 'MENUDIGITAL',
+      notification_url:
+        'https://068b-186-27-244-118.ngrok-free.app/api/mercadopago/webhook',
+      external_reference: 'userid-3',
     };
 
     try {
@@ -60,7 +67,7 @@ export class MercadopagoService {
   getMercadoPago() {
     return {
       message: 'MercadoPago route works!',
-      publicKey: this.configService.get('PUBLIC_KEY'),
+      publicKey: this.configService.get('ACCESS_TOKEN'),
     };
   }
 }
