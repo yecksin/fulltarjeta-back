@@ -26,7 +26,7 @@ export class WorkerService {
   ): Promise<WorkerKvResponse> {
     try {
       const payload: WorkerKvPayload = {
-        domain,
+        domain: domain + '.fulltarjeta.com',
         key: this.workerSecretKey,
         menu,
       };
