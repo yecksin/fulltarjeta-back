@@ -1,26 +1,49 @@
-import { Injectable } from '@nestjs/common';
-import { CreateWorkerDto } from './dto/create-worker.dto';
-import { UpdateWorkerDto } from './dto/update-worker.dto';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  WorkerKvPayload,
+  WorkerKvResponse,
+} from './interfaces/worker-kv.interface';
+import { ConfigService } from '@nestjs/config';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class WorkerService {
-  create(createWorkerDto: CreateWorkerDto) {
-    return 'This action adds a new worker';
+  private readonly workerUrl: string;
+  private readonly workerSecretKey: string;
+
+  constructor(
+    private configService: ConfigService,
+    private httpService: HttpService,
+  ) {
+    this.workerUrl = this.configService.get<string>('WORKER_URL');
+    this.workerSecretKey = this.configService.get<string>('WORKER_SECRET_KEY');
   }
 
-  findAll() {
-    return `This action returns all worker`;
-  }
+  async updateKv(
+    domain: string,
+    menu: Record<string, any>,
+  ): Promise<WorkerKvResponse> {
+    try {
+      const payload: WorkerKvPayload = {
+        domain,
+        key: this.workerSecretKey,
+        menu,
+      };
 
-  findOne(id: number) {
-    return `This action returns a #${id} worker`;
-  }
+      const { data } = await firstValueFrom(
+        this.httpService.post<WorkerKvResponse>(
+          `${this.workerUrl}update-kv`,
+          payload,
+        ),
+      );
 
-  update(id: number, updateWorkerDto: UpdateWorkerDto) {
-    return `This action updates a #${id} worker`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} worker`;
+      return data;
+    } catch (error) {
+      throw new HttpException(
+        error.response?.data?.message || 'Error updating KV store',
+        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
