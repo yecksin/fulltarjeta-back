@@ -35,13 +35,18 @@ export class WorkerService {
         this.httpService.post<WorkerKvResponse>(
           `${this.workerUrl}update-kv`,
           payload,
+          {
+            headers: {
+              Origin: this.configService.get<string>('ORIGIN_URL'),
+            },
+          },
         ),
       );
 
       return data;
     } catch (error) {
       throw new HttpException(
-        error.response?.data?.message || 'Error updating KV store',
+        error.response?.data || 'Error updating KV store',
         error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
