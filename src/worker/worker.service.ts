@@ -11,15 +11,26 @@ import { firstValueFrom } from 'rxjs';
 export class WorkerService {
   private readonly workerUrl: string;
   private readonly workerSecretKey: string;
-
+  private readonly sseWorkerUrl: string;
   constructor(
     private configService: ConfigService,
     private httpService: HttpService,
   ) {
     this.workerUrl = this.configService.get<string>('WORKER_URL');
     this.workerSecretKey = this.configService.get<string>('WORKER_SECRET_KEY');
+    this.sseWorkerUrl = this.configService.get<string>('SSE_WORKER_URL');
   }
 
+  async updateSseWorker(domain: string, menu: Record<string, any>) {
+    console.log('inicia');
+    console.log(`${this.sseWorkerUrl}/data?subdomain=${domain}`);
+    await firstValueFrom(
+      this.httpService.post<WorkerKvResponse>(
+        `${this.sseWorkerUrl}/data?subdomain=${domain}`,
+        menu,
+      ),
+    );
+  }
   async updateKv(
     domain: string,
     menu: Record<string, any>,

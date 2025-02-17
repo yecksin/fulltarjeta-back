@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MercadoPagoConfig, Preference } from 'mercadopago';
+import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 
 @Injectable()
 export class MercadopagoService {
@@ -48,10 +48,9 @@ export class MercadopagoService {
         },
       },
       back_urls: {
-        success: `https://068b-186-27-244-118.ngrok-free.app/api/mercadopago/success?userId=${userData.userId}&plan=${userData.planType}&business=${userData.businessName}`,
-        failure:
-          'https://068b-186-27-244-118.ngrok-free.app/api/mercadopago/failure',
-        pending: `https://068b-186-27-244-118.ngrok-free.app/api/mercadopago/pending?userId=${userData.userId}&plan=${userData.planType}&business=${userData.businessName}`,
+        success: `https://fulltarjeta.com`,
+        failure: `https://fulltarjeta.com`,
+        pending: `https://fulltarjeta.com`,
       },
       auto_return: 'all',
       binary_mode: false,
@@ -66,8 +65,7 @@ export class MercadopagoService {
         default_payment_method_id: null,
         default_installments: null,
       },
-      notification_url:
-        'https://068b-186-27-244-118.ngrok-free.app/api/mercadopago/webhook',
+      notification_url: `${this.configService.get('BACK_URL')}mercadopago/webhook`,
       statement_descriptor: 'MENUDIGITAL',
       external_reference: `userid-3_${userData.subdomain}`,
       metadata: {
@@ -91,10 +89,26 @@ export class MercadopagoService {
     }
   }
 
-  getMercadoPago() {
-    return {
-      message: 'MercadoPago route works!',
-      publicKey: this.configService.get('PUBLIC_KEY'),
-    };
+  async paymentStatusByDataId(paymentId: string) {
+    console.log(paymentId);
+    try {
+      if (!paymentId) {
+        return {
+          message: 'Payment ID is required',
+        };
+      }
+      const accessToken = this.configService.get<string>('ACCESS_TOKEN');
+      const client = new MercadoPagoConfig({
+        accessToken,
+        options: { timeout: 5000 },
+      });
+      const payment = new Payment(client);
+      const paymentInfo = await payment.get({ id: paymentId });
+      console.log('Payment Info:', paymentInfo);
+      return paymentInfo;
+    } catch (error) {
+      console.error('Error fetching payment status:', error);
+      throw error;
+    }
   }
 }

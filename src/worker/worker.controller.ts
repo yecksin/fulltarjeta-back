@@ -14,7 +14,14 @@ export class WorkerController {
     @Req() request: Request,
   ) {
     console.log('Request from domain:', request.headers.host);
+    console.log(menu);
     const result = await this.workerService.updateKv(domain, menu);
+    try {
+      await this.workerService.updateSseWorker(domain, menu);
+    } catch (error) {
+      console.log(error.response);
+    }
+
     return {
       success: true,
       message: 'KV updated successfully',
